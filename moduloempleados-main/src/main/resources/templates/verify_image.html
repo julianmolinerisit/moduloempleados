@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Entrada/Salida</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+    <h1>Registro de Entrada/Salida</h1>
+    <form th:action="@{/empleados/entrada-salida}" method="post">
+        <label for="dni">DNI:</label>
+        <input type="text" id="dni" name="dni" required/>
+        <button type="submit">Registrar</button>
+    </form>
+    <p th:text="${mensaje}"></p>
+</body>
+</html>

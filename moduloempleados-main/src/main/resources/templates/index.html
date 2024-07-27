@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Información del Empleado</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
+        <h1 class="text-3xl font-bold mb-6">Información del Empleado</h1>
+
+        <div class="mb-6">
+            <h2 class="text-2xl font-semibold mb-2" th:text="'Empleado: ' + ${empleado.nombre} + ' ' + ${empleado.apellido}"></h2>
+            <p class="text-lg mb-2" th:text="'DNI: ' + ${empleado.dni}"></p>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-2">Horarios Asignados:</h3>
+            <ul class="list-disc list-inside pl-5">
+                <li class="mb-2" th:each="horario : ${horariosAsignados}" th:text="${horario}"></li>
+            </ul>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-2">Días Asignados:</h3>
+            <ul class="list-disc list-inside pl-5">
+                <li class="mb-2" th:each="dia : ${diasAsignados}" th:text="${dia}"></li>
+            </ul>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-2">Calendario de Asistencia:</h3>
+            <div th:each="entry : ${calendario}" class="mb-4">
+                <h4 class="text-lg font-semibold mb-2" th:text="${entry.key}"></h4>
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Día</th>
+                            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dia : ${entry.value}" class="border-b">
+                            <td class="py-2 px-4 text-sm text-gray-600" th:text="${dia.key}"></td>
+                            <td class="py-2 px-4 text-sm text-gray-600" th:text="${dia.value}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Entradas y Salidas -->
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-2">Registro de Entradas y Salidas:</h3>
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Fecha y Hora</th>
+                        <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="registro : ${empleado.registros}" class="border-b">
+                        <td class="py-2 px-4 text-sm text-gray-600" th:text="${registro.timestamp}"></td>
+                        <td class="py-2 px-4 text-sm text-gray-600" th:text="${registro.esEntrada ? 'Entrada' : 'Salida'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="container mx-auto p-6">
+        <a href="/empleados/entrada-salida" class="inline-block px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600">Registrar Entrada/Salida</a>
+    </div>
+</body>
+</html>

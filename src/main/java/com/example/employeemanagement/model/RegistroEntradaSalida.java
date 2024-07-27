@@ -15,6 +15,7 @@ public class RegistroEntradaSalida {
 
     private LocalDateTime timestamp;
     private boolean esEntrada;
+    private String imagen; // Añadir este campo para almacenar la imagen
 
     // Getters y Setters
 
@@ -41,4 +42,12 @@ public class RegistroEntradaSalida {
     public void setEsEntrada(boolean esEntrada) {
         this.esEntrada = esEntrada;
     }
+
+	public String getImagen() {
+		return imagen;
+	}
+
+	public void setImagen(String imagen) {
+		this.imagen = imagen;
+	}
 }

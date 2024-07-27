@@ -6,6 +6,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Entity
 public class Empleado {
     @Id
@@ -16,6 +18,7 @@ public class Empleado {
     private String apellido;
     private String dni;
     private Boolean activo;
+    private String imagen; // Cambiar MultipartFile a String
 
     @ElementCollection
     @CollectionTable(name = "horarios_asignados", joinColumns = @JoinColumn(name = "empleado_id"))
@@ -100,12 +103,18 @@ public class Empleado {
         this.registros.add(registro);
     }
 
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
     @Embeddable
     public static class Horario {
         private LocalTime ingreso;
         private LocalTime salida;
-
-        // Getters y Setters
 
         public LocalTime getIngreso() {
             return ingreso;

@@ -9,7 +9,7 @@
         <h1 class="text-xl">Crear Empleado</h1>
     </header>
     <div class="container mx-auto p-4">
-        <form th:action="@{/empleados}" method="post" class="bg-white p-4 shadow-md rounded">
+        <form th:action="@{/empleados}" method="post" enctype="multipart/form-data" class="bg-white p-4 shadow-md rounded">
             <div class="mb-4">
                 <label for="nombre" class="block text-gray-700">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" th:value="${empleado.nombre}" required class="w-full p-2 border border-gray-300 rounded">
@@ -49,13 +49,21 @@
                 <label for="activo" class="block text-gray-700">Activo:</label>
                 <input type="checkbox" id="activo" name="activo" th:checked="${empleado.activo}" class="mr-1">
             </div>
-            <div class="flex justify-between">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Guardar</button>
-                <a th:href="@{/empleados}" class="bg-gray-500 text-white px-4 py-2 rounded">Cancelar</a>
+            <div class="mb-4">
+                <label class="block text-gray-700">Foto del Empleado:</label>
+                <div id="my_camera"></div>
+                <br>
+                <input type="button" value="Tomar Foto" onClick="take_snapshot()" class="bg-green-500 text-white px-4 py-2 rounded">
+                <input type="hidden" name="image" class="image-tag">
+                <div id="results"></div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Crear Empleado</button>
             </div>
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
     <script>
         $(document).ready(function() {
             let scheduleCount = 1;
@@ -73,6 +81,22 @@
                 $(this).parent().remove();
             });
         });
+
+        Webcam.set({
+            width: 320,
+            height: 240,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+
+        Webcam.attach('#my_camera');
+
+        function take_snapshot() {
+            Webcam.snap(function(data_uri) {
+                document.querySelector('.image-tag').value = data_uri;
+                document.getElementById('results').innerHTML = '<img src="'+data_uri+'"/>';
+            });
+        }
     </script>
 </body>
 </html>

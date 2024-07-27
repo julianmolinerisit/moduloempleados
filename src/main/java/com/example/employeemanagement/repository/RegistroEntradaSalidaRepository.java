@@ -5,3 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RegistroEntradaSalidaRepository extends JpaRepository<RegistroEntradaSalida, Long> {
 }
+
+
+
+
