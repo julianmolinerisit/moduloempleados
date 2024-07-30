@@ -3,13 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>Información del Empleado</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        function updateFilters() {
+            const filtro = document.getElementById('filtro').value;
+            document.getElementById('anio-field').style.display = filtro === 'año' ? 'block' : 'none';
+            document.getElementById('semana-field').style.display = filtro === 'semana' ? 'block' : 'none';
+            document.getElementById('mes-field').style.display = filtro === 'mes' ? 'block' : 'none';
+            document.getElementById('dia-field').style.display = filtro === 'día' ? 'block' : 'none';
+        }
+    </script>
 </head>
-<body class="bg-gray-100 text-gray-800">
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
-        <h1 class="text-3xl font-bold mb-6">Información del Empleado</h1>
+<body class="bg-gray-100 text-gray-800 flex justify-center items-center min-h-screen">
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-md mt-8 max-w-4xl">
+        <h1 class="text-3xl font-bold mb-6 border-b pb-3 text-center">Información del Empleado</h1>
 
-        <div class="mb-6">
+        <!-- Filtros -->
+        <div class="mb-6 flex flex-col items-center">
+            <form th:action="@{/empleados/index}" method="get" class="flex flex-col gap-4">
+                <input type="hidden" name="id" th:value="${empleado.id}" />
+                
+                <label for="filtro" class="text-lg font-semibold">Filtrar por:</label>
+                <select id="filtro" name="filtro" class="border p-2 rounded-lg" required onchange="updateFilters()">
+                    <option value="" disabled selected>Seleccionar...</option>
+                    <option value="semana">Semana</option>
+                    <option value="mes">Mes</option>
+                    <option value="año">Año</option>
+                    <option value="día">Día</option>
+                </select>
+
+                <div id="semana-field" class="hidden">
+                    <label for="semanaInicio" class="text-lg font-semibold">Inicio de la Semana:</label>
+                    <input type="date" id="semanaInicio" name="semanaInicio" class="border p-2 rounded-lg" />
+                    <label for="semanaFin" class="text-lg font-semibold">Fin de la Semana:</label>
+                    <input type="date" id="semanaFin" name="semanaFin" class="border p-2 rounded-lg" />
+                </div>
+
+                <div id="mes-field" class="hidden">
+                    <label for="mes" class="text-lg font-semibold">Mes:</label>
+                    <input type="month" id="mes" name="mes" class="border p-2 rounded-lg" />
+                </div>
+
+                <div id="anio-field" class="hidden">
+                    <label for="anio" class="text-lg font-semibold">Año:</label>
+                    <input type="number" id="anio" name="anio" class="border p-2 rounded-lg" placeholder="Año" />
+                </div>
+
+                <div id="dia-field" class="hidden">
+                    <label for="dia" class="text-lg font-semibold">Día:</label>
+                    <input type="date" id="dia" name="dia" class="border p-2 rounded-lg" />
+                </div>
+
+                <button type="submit" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600">Aplicar Filtro</button>
+            </form>
+        </div>
+
+        <div class="mb-6 text-center">
             <h2 class="text-2xl font-semibold mb-2" th:text="'Empleado: ' + ${empleado.nombre} + ' ' + ${empleado.apellido}"></h2>
             <p class="text-lg mb-2" th:text="'DNI: ' + ${empleado.dni}"></p>
         </div>
@@ -32,15 +81,15 @@
             <h3 class="text-xl font-semibold mb-2">Calendario de Asistencia:</h3>
             <div th:each="entry : ${calendario}" class="mb-4">
                 <h4 class="text-lg font-semibold mb-2" th:text="${entry.key}"></h4>
-                <table class="min-w-full bg-white border border-gray-200">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
                     <thead>
                         <tr class="bg-gray-100 border-b">
-                            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Día</th>
+                            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Hora</th>
                             <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Estado</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="dia : ${entry.value}" class="border-b">
+                        <tr th:each="dia : ${entry.value}" class="border-b hover:bg-gray-50 transition-colors">
                             <td class="py-2 px-4 text-sm text-gray-600" th:text="${dia.key}"></td>
                             <td class="py-2 px-4 text-sm text-gray-600" th:text="${dia.value}"></td>
                         </tr>
@@ -49,10 +98,9 @@
             </div>
         </div>
 
-        <!-- Entradas y Salidas -->
         <div class="mb-6">
             <h3 class="text-xl font-semibold mb-2">Registro de Entradas y Salidas:</h3>
-            <table class="min-w-full bg-white border border-gray-200">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <thead>
                     <tr class="bg-gray-100 border-b">
                         <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Fecha y Hora</th>
@@ -60,17 +108,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="registro : ${empleado.registros}" class="border-b">
+                    <tr th:each="registro : ${empleado.registros}" class="border-b hover:bg-gray-50 transition-colors">
                         <td class="py-2 px-4 text-sm text-gray-600" th:text="${registro.timestamp}"></td>
                         <td class="py-2 px-4 text-sm text-gray-600" th:text="${registro.esEntrada ? 'Entrada' : 'Salida'}"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-    </div>
-    
-    <div class="container mx-auto p-6">
-        <a href="/empleados/entrada-salida" class="inline-block px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600">Registrar Entrada/Salida</a>
+
+        <div class="text-center mt-6">
+            <a href="/empleados/entrada-salida" class="inline-block px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors">Registrar Entrada/Salida</a>
+        </div>
     </div>
 </body>
 </html>

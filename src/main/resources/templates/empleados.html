@@ -21,6 +21,8 @@
                         <th class="border border-gray-200 px-4 py-2">Nombre</th>
                         <th class="border border-gray-200 px-4 py-2">Apellido</th>
                         <th class="border border-gray-200 px-4 py-2">DNI</th>
+                        <th class="border border-gray-200 px-4 py-2">Horarios Asignados</th>
+                        <th class="border border-gray-200 px-4 py-2">Días Asignados</th>
                         <th class="border border-gray-200 px-4 py-2">Acciones</th>
                     </tr>
                 </thead>
@@ -33,6 +35,19 @@
                         <td class="border border-gray-200 px-4 py-2" th:text="${empleado.apellido}"></td>
                         <td class="border border-gray-200 px-4 py-2" th:text="${empleado.dni}"></td>
                         <td class="border border-gray-200 px-4 py-2">
+                            <ul>
+                                <li th:each="horario : ${empleado.horariosAsignados}">
+                                    <span th:text="${horario.ingreso} + ' - ' + ${horario.salida}"></span>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="border border-gray-200 px-4 py-2">
+                            <ul>
+                                <li th:each="dia : ${empleado.diasAsignados}" th:text="${dia}"></li>
+                            </ul>
+                        </td>
+                        <td class="border border-gray-200 px-4 py-2">
+                            <a th:href="@{/empleados/index(id=${empleado.id})}" class="bg-green-500 text-white px-4 py-2 rounded">Ver Detalles</a>
                             <a th:href="@{/empleados/editar/{id}(id=${empleado.id})}" class="bg-blue-500 text-white px-4 py-2 rounded">Editar</a>
                             <a th:href="@{/empleados/borrar/{id}(id=${empleado.id})}" class="bg-red-500 text-white px-4 py-2 rounded" onclick="return confirm('¿Estás seguro de eliminar este empleado?');">Borrar</a>
                         </td>

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,7 +183,7 @@ public class EmpleadoController {
                 model.addAttribute("diasAsignados", emp.getDiasAsignados());
 
                 // Generar el calendario de asistencia
-                Map<String, List<Map.Entry<String, String>>> calendario = generarCalendarioAsistencia(emp);
+                Map<String, List<Map.Entry<String, String>>> calendario = generarCalendarioAsistencia(emp, imageData, null, null, null, null, null);
                 model.addAttribute("calendario", calendario);
 
                 // Redirigir a la página de información del empleado
@@ -200,7 +203,14 @@ public class EmpleadoController {
 
 
     @GetMapping("/index")
-    public String mostrarIndex(@RequestParam("id") Long id, Model model) {
+    public String mostrarIndex(@RequestParam("id") Long id,
+                               @RequestParam(value = "filtro", required = false) String filtro,
+                               @RequestParam(value = "semanaInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate semanaInicio,
+                               @RequestParam(value = "semanaFin", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate semanaFin,
+                               @RequestParam(value = "mes", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) YearMonth mes,
+                               @RequestParam(value = "anio", required = false) Integer anio,
+                               @RequestParam(value = "dia", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dia,
+                               Model model) {
         Optional<Empleado> empleadoOpt = empleadoService.getEmpleadoById(id);
         if (empleadoOpt.isPresent()) {
             Empleado empleado = empleadoOpt.get();
@@ -211,8 +221,8 @@ public class EmpleadoController {
                             .collect(Collectors.toList()));
             model.addAttribute("diasAsignados", empleado.getDiasAsignados());
 
-            // Generar calendario de asistencia
-            Map<String, List<Map.Entry<String, String>>> calendario = generarCalendarioAsistencia(empleado);
+            // Generar calendario de asistencia con filtro
+            Map<String, List<Map.Entry<String, String>>> calendario = generarCalendarioAsistencia(empleado, filtro, semanaInicio, semanaFin, mes, anio, dia);
             model.addAttribute("calendario", calendario);
 
             return "index"; // Asegúrate de que index.html esté en src/main/resources/templates/
@@ -221,19 +231,36 @@ public class EmpleadoController {
         }
     }
 
-    private Map<String, List<Map.Entry<String, String>>> generarCalendarioAsistencia(Empleado empleado) {
+    private Map<String, List<Map.Entry<String, String>>> generarCalendarioAsistencia(Empleado empleado, String filtro, LocalDate semanaInicio, LocalDate semanaFin, YearMonth mes, Integer anio, LocalDate dia) {
         Map<String, List<Map.Entry<String, String>>> calendario = new HashMap<>();
         LocalDateTime hoy = LocalDateTime.now();
 
-        // Lógica para generar el calendario basado en los registros de entrada/salida
         for (RegistroEntradaSalida registro : empleado.getRegistros()) {
-            String fecha = registro.getTimestamp().toLocalDate().toString();
-            String estado = registro.isEsEntrada() ? "Entrada" : "Salida";
+            LocalDateTime timestamp = registro.getTimestamp();
+            boolean incluirRegistro = false;
 
-            calendario.computeIfAbsent(fecha, k -> new ArrayList<>())
-                    .add(new AbstractMap.SimpleEntry<>(registro.getTimestamp().toLocalTime().toString(), estado));
+            if ("semana".equals(filtro) && semanaInicio != null && semanaFin != null) {
+                incluirRegistro = !timestamp.toLocalDate().isBefore(semanaInicio) && !timestamp.toLocalDate().isAfter(semanaFin);
+            } else if ("mes".equals(filtro) && mes != null) {
+                incluirRegistro = timestamp.getYear() == mes.getYear() && timestamp.getMonth() == mes.getMonth();
+            } else if ("año".equals(filtro) && anio != null) {
+                incluirRegistro = timestamp.getYear() == anio;
+            } else if ("día".equals(filtro) && dia != null) {
+                incluirRegistro = timestamp.toLocalDate().isEqual(dia);
+            } else {
+                incluirRegistro = true; // No se ha aplicado ningún filtro específico
+            }
+
+            if (incluirRegistro) {
+                String fecha = timestamp.toLocalDate().toString();
+                String estado = registro.isEsEntrada() ? "Entrada" : "Salida";
+                calendario.computeIfAbsent(fecha, k -> new ArrayList<>())
+                          .add(new AbstractMap.SimpleEntry<>(timestamp.toLocalTime().toString(), estado));
+            }
         }
 
         return calendario;
     }
+
+
 }
