@@ -6,8 +6,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
 @Entity
 public class Empleado {
     @Id
@@ -115,6 +113,7 @@ public class Empleado {
     public static class Horario {
         private LocalTime ingreso;
         private LocalTime salida;
+        private String diaSemana; // Añadido para almacenar el día de la semana
 
         public LocalTime getIngreso() {
             return ingreso;
@@ -130,6 +129,14 @@ public class Empleado {
 
         public void setSalida(LocalTime salida) {
             this.salida = salida;
+        }
+
+        public String getDiaSemana() {
+            return diaSemana;
+        }
+
+        public void setDiaSemana(String diaSemana) {
+            this.diaSemana = diaSemana;
         }
     }
 }

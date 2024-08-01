@@ -16,6 +16,8 @@ public class RegistroEntradaSalida {
     private LocalDateTime timestamp;
     private boolean esEntrada;
     private String imagen; // Añadir este campo para almacenar la imagen
+    private String retraso; // Añadir este campo para almacenar el retraso
+    private long minutosRetraso;
 
     // Getters y Setters
 
@@ -49,5 +51,21 @@ public class RegistroEntradaSalida {
 
 	public void setImagen(String imagen) {
 		this.imagen = imagen;
+	}
+
+	public String getRetraso() {
+		return retraso;
+	}
+
+	public void setRetraso(String retraso) {
+		this.retraso = retraso;
+	}
+
+	public long getMinutosRetraso() {
+		return minutosRetraso;
+	}
+
+	public void setMinutosRetraso(long minutosRetraso) {
+		this.minutosRetraso = minutosRetraso;
 	}
 }
