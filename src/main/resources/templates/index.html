@@ -42,43 +42,6 @@
 				</select>
 
 
-				<!-- Mostrar calendario visual -->
-
-				<div class="grid grid-cols-7 gap-2 mt-4">
-					<!-- Mostrar los días de la semana en orden desde domingo -->
-					<div class="col-span-1 text-center font-bold">Dom</div>
-					<div class="col-span-1 text-center font-bold">Lun</div>
-					<div class="col-span-1 text-center font-bold">Mar</div>
-					<div class="col-span-1 text-center font-bold">Mié</div>
-					<div class="col-span-1 text-center font-bold">Jue</div>
-					<div class="col-span-1 text-center font-bold">Vie</div>
-					<div class="col-span-1 text-center font-bold">Sáb</div>
-
-					<!-- Generar cuadrículas del calendario simplificado -->
-					<div th:each="entry : ${calendarioSimplificado}"
-						class="col-span-1 border p-3 bg-gray-200 rounded-lg">
-						<h4 class="font-semibold text-xs text-center"
-							th:text="${T(java.time.LocalDate).parse(entry.key).getDayOfMonth()}"></h4>
-						<table class="table-auto w-full mt-2 text-xs">
-							<thead>
-								<tr>
-									<th class="py-1 px-2 text-left text-gray-700">Hora</th>
-									<th class="py-1 px-2 text-left text-gray-700">Tipo</th>
-								</tr>
-							</thead>
-							<tbody>
-								<!-- Iterar sobre registros del día -->
-								<tr th:each="registro : ${entry.value}">
-									<td class="py-1 px-2 text-gray-700 truncate"
-										th:text="${registro.key}"></td>
-									<td class="py-1 px-2 text-gray-700 truncate overflow-hidden"
-										th:text="${registro.value}"></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-
 				<div id="semana-field" class="hidden">
 					<label for="semanaInicio" class="text-lg font-semibold">Inicio
 						de la Semana:</label> <input type="date" id="semanaInicio"
@@ -123,32 +86,76 @@
 				<li class="mb-2" th:each="dia : ${diasAsignados}" th:text="${dia}"></li>
 			</ul>
 		</div>
+<!-- Mostrar calendario visual -->
+<div class="grid grid-cols-7 gap-2 mt-4">
+    <!-- Mostrar los días de la semana en orden desde domingo -->
+    <div class="col-span-1 text-center font-bold">Dom</div>
+    <div class="col-span-1 text-center font-bold">Lun</div>
+    <div class="col-span-1 text-center font-bold">Mar</div>
+    <div class="col-span-1 text-center font-bold">Mié</div>
+    <div class="col-span-1 text-center font-bold">Jue</div>
+    <div class="col-span-1 text-center font-bold">Vie</div>
+    <div class="col-span-1 text-center font-bold">Sáb</div>
+
+    <!-- Generar cuadrículas del calendario simplificado -->
+    <div th:each="entry : ${calendario}"
+        class="col-span-1 border p-2 bg-gray-200 rounded-lg flex flex-col">
+        <h4 class="font-semibold text-xs text-center truncate"
+            th:text="${T(java.time.LocalDate).parse(entry.key).getDayOfMonth()}"></h4>
+        <div class="overflow-auto">
+            <table class="table-auto w-full text-xs">
+                <thead>
+                    <tr>
+                        <th class="py-1 px-2 text-left text-gray-700">Hora</th>
+                        <th class="py-1 px-2 text-left text-gray-700">Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Iterar sobre registros del día -->
+                    <tr th:each="registro : ${entry.value}">
+                        <td class="py-1 px-2 text-gray-700 truncate"
+                            th:text="${registro.key}"></td>
+                        <td class="py-1 px-2 text-gray-700 truncate"
+                            th:text="${registro.value}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 		<div class="mb-6">
 			<h3 class="text-xl font-semibold mb-2">Calendario de Asistencia:</h3>
 			<div th:each="entry : ${calendario}" class="mb-4">
-				<h4 class="text-lg font-semibold mb-2" th:text="${entry.key}"></h4>
-				<table
-					class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
-					<thead>
-						<tr class="bg-gray-100 border-b">
-							<th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Día</th>
-							<th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Estado</th>
-							<th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Tiempo
-								de retraso</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="dia : ${entry.value}"
-							class="border-b hover:bg-gray-50 transition-colors">
-							<td class="py-2 px-4 text-sm text-gray-600" th:text="${dia.key}"></td>
-							<td class="py-2 px-4 text-sm text-gray-600"
-								th:text="${dia.value}"></td>
-							<td class="py-2 px-4 text-sm text-gray-600"><span
-								th:if="${#strings.contains(dia.value, 'Retraso')}"
-								th:text="${#strings.substringAfter(dia.value, 'Retraso: ')}"></span>
-							</td>
-					</tbody>
-				</table>
+			<table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <thead>
+        <tr class="bg-gray-100 border-b">
+            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Día</th>
+            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Hora</th>
+            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Estado</th>
+            <th class="py-2 px-4 text-left text-sm font-medium text-gray-700">Tiempo de retraso</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="dia : ${entry.value}" class="border-b hover:bg-gray-50 transition-colors">
+            <!-- Mostrar el día -->
+            <td class="py-2 px-4 text-sm text-gray-600" th:text="${entry.key}"></td>
+            <!-- Mostrar la hora -->
+            <td class="py-2 px-4 text-sm text-gray-600" th:text="${dia.key}"></td>
+            <!-- Mostrar el estado (entrada/salida) con retraso o a tiempo -->
+            <td class="py-2 px-4 text-sm text-gray-600">
+                <span th:text="${#strings.contains(dia.value, 'Retraso') ? #strings.substringBefore(dia.value, ' - Retraso') : dia.value}"></span>
+            </td>
+            <!-- Mostrar los minutos de retraso, si existen -->
+            <td class="py-2 px-4 text-sm text-gray-600">
+                <span th:if="${#strings.contains(dia.value, 'Retraso')}" 
+                      th:text="${#strings.substringAfter(dia.value, 'Retraso: ')}"></span>
+                <span th:unless="${#strings.contains(dia.value, 'Retraso')}" th:text="'-'"></span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 			</div>
 		</div>
 

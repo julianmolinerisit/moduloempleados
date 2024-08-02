@@ -288,60 +288,67 @@ public class EmpleadoController {
 
 	// Método para generar el calendario detallado
 	private Map<String, List<Map.Entry<String, String>>> generarCalendarioAsistencia(Empleado empleado, String filtro,
-			LocalDate semanaInicio, LocalDate semanaFin, YearMonth mes, Integer anio, LocalDate dia) {
+	        LocalDate semanaInicio, LocalDate semanaFin, YearMonth mes, Integer anio, LocalDate dia) {
 
-		Map<String, List<Map.Entry<String, String>>> calendario = new LinkedHashMap<>();
-		LocalDate fechaInicio;
-		LocalDate fechaFin;
+	    Map<String, List<Map.Entry<String, String>>> calendario = new LinkedHashMap<>();
+	    LocalDate fechaInicio;
+	    LocalDate fechaFin;
 
-		// Definir el rango de fechas según el filtro
-		if ("mes".equals(filtro) && mes != null) {
-			LocalDate primerDiaDelMes = mes.atDay(1);
-			LocalDate ultimoDiaDelMes = mes.atEndOfMonth();
-			fechaInicio = primerDiaDelMes.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-			fechaFin = ultimoDiaDelMes.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
-		} else if ("año".equals(filtro) && anio != null) {
-			fechaInicio = LocalDate.of(anio, 1, 1);
-			fechaFin = LocalDate.of(anio, 12, 31);
-		} else if ("semana".equals(filtro) && semanaInicio != null && semanaFin != null) {
-			fechaInicio = semanaInicio.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-			fechaFin = semanaFin.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
-		} else if ("día".equals(filtro) && dia != null) {
-			fechaInicio = dia;
-			fechaFin = dia;
-		} else {
-			fechaInicio = LocalDate.now().withDayOfMonth(1);
-			fechaFin = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-		}
+	    // Definir el rango de fechas según el filtro
+	    if ("mes".equals(filtro) && mes != null) {
+	        LocalDate primerDiaDelMes = mes.atDay(1);
+	        LocalDate ultimoDiaDelMes = mes.atEndOfMonth();
+	        fechaInicio = primerDiaDelMes.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+	        fechaFin = ultimoDiaDelMes.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
+	    } else if ("año".equals(filtro) && anio != null) {
+	        fechaInicio = LocalDate.of(anio, 1, 1);
+	        fechaFin = LocalDate.of(anio, 12, 31);
+	    } else if ("semana".equals(filtro) && semanaInicio != null && semanaFin != null) {
+	        fechaInicio = semanaInicio.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+	        fechaFin = semanaFin.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY));
+	    } else if ("día".equals(filtro) && dia != null) {
+	        fechaInicio = dia;
+	        fechaFin = dia;
+	    } else {
+	        fechaInicio = LocalDate.now().withDayOfMonth(1);
+	        fechaFin = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+	    }
 
-		DateTimeFormatter horaFormatter = DateTimeFormatter.ofPattern("HH:mm");
+	    DateTimeFormatter horaFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-		// Generar el calendario día a día
-		for (LocalDate date = fechaInicio; !date.isAfter(fechaFin); date = date.plusDays(1)) {
-			List<Map.Entry<String, String>> registrosDelDia = new ArrayList<>();
+	    // Generar el calendario día a día
+	    for (LocalDate date = fechaInicio; !date.isAfter(fechaFin); date = date.plusDays(1)) {
+	        List<Map.Entry<String, String>> registrosDelDia = new ArrayList<>();
 
-			// Buscar registros para la fecha actual
-			boolean tieneRegistro = false;
-			for (RegistroEntradaSalida registro : empleado.getRegistros()) {
-				if (registro.getTimestamp().toLocalDate().equals(date)) {
-					tieneRegistro = true;
-					String estado = determinarEstadoAsistencia(registro, empleado);
-					String hora = registro.getTimestamp().toLocalTime().format(horaFormatter);
-					String tipo = registro.isEsEntrada() ? "Entrada" : "Salida";
-					String detalle = estado + " - Retraso: " + registro.getMinutosRetraso() + " min";
-					registrosDelDia.add(new AbstractMap.SimpleEntry<>("Hora: " + hora, tipo + " - " + detalle));
-				}
-			}
+	        // Buscar registros para la fecha actual
+	        boolean tieneRegistro = false;
+	        for (RegistroEntradaSalida registro : empleado.getRegistros()) {
+	            if (registro.getTimestamp().toLocalDate().equals(date)) {
+	                tieneRegistro = true;
+	                String estado = determinarEstadoAsistencia(registro, empleado);
+	                String hora = registro.getTimestamp().toLocalTime().format(horaFormatter);
+	                String tipo = registro.isEsEntrada() ? "Entrada" : "Salida";
+	                
+	                // Construir detalle solo si hay retraso
+	                String detalle = estado;
+	                if (registro.getMinutosRetraso() > 0) {
+	                    detalle += " - Retraso: " + registro.getMinutosRetraso() + " min";
+	                }
+	                
+	                registrosDelDia.add(new AbstractMap.SimpleEntry<>(hora, tipo + " - " + detalle));
+	            }
+	        }
 
-			if (!tieneRegistro) {
-				registrosDelDia.add(new AbstractMap.SimpleEntry<>("Hora: ", "No se registró entrada/salida."));
-			}
+	        if (!tieneRegistro) {
+	            registrosDelDia.add(new AbstractMap.SimpleEntry<>("", "No se registró entrada/salida."));
+	        }
 
-			calendario.put(date.toString(), registrosDelDia);
-		}
+	        calendario.put(date.toString(), registrosDelDia);
+	    }
 
-		return calendario;
+	    return calendario;
 	}
+
 
 	// Método para generar el calendario simplificado
 	private Map<String, List<Map.Entry<String, String>>> generarCalendarioAsistenciaSimplificado(Empleado empleado,
@@ -412,14 +419,6 @@ public class EmpleadoController {
 		return Optional.empty();
 	}
 
-	@GetMapping("/calendario-detallado")
-	public String mostrarCalendarioDetallado(Model model, Empleado empleado, String filtro, LocalDate semanaInicio,
-	        LocalDate semanaFin, YearMonth mes, Integer anio, LocalDate dia) {
-	    Map<String, List<Map.Entry<String, String>>> calendario = generarCalendarioAsistencia(empleado, filtro,
-	            semanaInicio, semanaFin, mes, anio, dia);
-	    model.addAttribute("calendario", calendario);
-	    return "calendario-detallado";
-	}
 
 	@GetMapping("/calendario-simplificado")
 	public String mostrarCalendarioSimplificado(Model model, Empleado empleado, String filtro, LocalDate semanaInicio,
